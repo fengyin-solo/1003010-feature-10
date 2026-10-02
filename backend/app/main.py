@@ -10,9 +10,16 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.routers import ROUTERS
+from app.services.electricbill import service as electricbill_service
 from app.store import store
 
 app = FastAPI(title="通信基站运维管理平台", version="1.0.0")
+
+
+@app.on_event("startup")
+def bootstrap_rules() -> None:
+    """启动时把存量电费记录按当前比对/分摊口径归位（幂等）。"""
+    electricbill_service.bootstrap()
 
 app.add_middleware(
     CORSMiddleware,
