@@ -16,7 +16,13 @@ class Store:
         }
 
     def module_names(self) -> list[str]:
-        return sorted(self._tables)
+        return sorted(name for name in self._tables if not self._is_secondary(name))
+
+    @staticmethod
+    def _is_secondary(name: str) -> bool:
+        # 业务模块的配套表（如电费的分表读数、分摊配置、重算留档）不单独算作业务模块
+        primary = {"electricbill"}
+        return name not in primary and name.startswith("electricbill_")
 
     def rows(self, module: str) -> list[dict[str, Any]]:
         return self._tables.setdefault(module, [])
